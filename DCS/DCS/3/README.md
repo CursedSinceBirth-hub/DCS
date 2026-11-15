@@ -37,7 +37,13 @@ mvn clean compile
 
 (`.\run-corba.ps1 clean compile` does the same and also checks that Java 17+ is
 being used.)
+```
+Get-ChildItem "C:\Program Files\Eclipse Adoptium"
 
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.21.9-hotspot"
+
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+```
 ## Run
 
 Start the server in one PowerShell terminal:
