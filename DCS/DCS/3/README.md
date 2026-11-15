@@ -39,6 +39,10 @@ mvn clean compile
 being used.)
 ```
 Get-ChildItem "C:\Program Files\Eclipse Adoptium"
+```
+
+
+```
 
 $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.21.9-hotspot"
 
