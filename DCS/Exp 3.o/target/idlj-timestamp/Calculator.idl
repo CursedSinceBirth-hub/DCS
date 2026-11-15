@@ -1,3 +1,0 @@
-interface Calculator {
-    long add(in long a, in long b);
-};
