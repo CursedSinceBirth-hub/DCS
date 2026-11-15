@@ -1,87 +1,96 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class RingAlgorithm {
+
     static int n;
-    static int[] processIds;
-    static boolean[] isAlive;
+    static boolean[] active;
+
+    static void election(int initiator) {
+
+        System.out.println("\nProcess P" + initiator
+                + " starts an election.");
+
+        int[] electionList = new int[n];
+        int count = 0;
+
+        int current = initiator;
+
+        System.out.println("\nElection message travels around the ring:");
+
+        do {
+
+            if (active[current]) {
+
+                electionList[count] = current;
+                count++;
+
+                System.out.println("Process P" + current
+                        + " participates in election.");
+            } else {
+
+                System.out.println("Process P" + current
+                        + " is failed. Skipping...");
+            }
+
+            current = (current % n) + 1;
+
+        } while (current != initiator);
+
+        // Find process with highest ID
+        int coordinator = electionList[0];
+
+        for (int i = 1; i < count; i++) {
+
+            if (electionList[i] > coordinator) {
+                coordinator = electionList[i];
+            }
+        }
+
+        System.out.println("\nElection message completed.");
+
+        System.out.println("Participating processes:");
+
+        for (int i = 0; i < count; i++) {
+            System.out.print("P" + electionList[i] + " ");
+        }
+
+        System.out.println("\n\nP" + coordinator
+                + " is the new Coordinator.");
+
+        System.out.println("\nCoordinator message circulated to all active processes.");
+    }
 
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter total number of processes in the ring: ");
+        System.out.print("Enter number of processes: ");
         n = sc.nextInt();
 
-        processIds = new int[n];
-        isAlive = new boolean[n];
+        active = new boolean[n + 1];
 
-        for (int i = 0; i < n; i++) {
-            System.out.print("Enter Process ID for ring position " + i + ": ");
-            processIds[i] = sc.nextInt();
-            isAlive[i] = true;
+        // Initially all processes are active
+        for (int i = 1; i <= n; i++) {
+            active[i] = true;
         }
 
-        // Highest PID starts as coordinator
-        int initialCoordinatorIndex = getMaxAliveIndex();
-        System.out.println("\nInitial Coordinator is Process: " + processIds[initialCoordinatorIndex]);
+        System.out.println("Enter failed process ID (0 for none): ");
+        int failed = sc.nextInt();
 
-        // Simulate crash
-        System.out.println("Process " + processIds[initialCoordinatorIndex] + " has crashed.");
-        isAlive[initialCoordinatorIndex] = false;
+        if (failed >= 1 && failed <= n) {
+            active[failed] = false;
+            System.out.println("Process P" + failed + " has failed.");
+        }
 
-        System.out.print("\nEnter ring index of process initiating election (0 to " + (n - 1) + "): ");
+        System.out.print("Enter process ID starting election: ");
         int initiator = sc.nextInt();
 
-        runRingElection(initiator);
+        if (initiator < 1 || initiator > n || !active[initiator]) {
+            System.out.println("Invalid or inactive initiator.");
+        } else {
+            election(initiator);
+        }
+
         sc.close();
-    }
-
-    private static void runRingElection(int initiator) {
-        System.out.println("\n--- Starting Ring Election ---");
-        List<Integer> activeList = new ArrayList<>();
-        activeList.add(processIds[initiator]);
-
-        int current = (initiator + 1) % n;
-
-        // Pass election token around until it returns to initiator
-        while (current != initiator) {
-            if (isAlive[current]) {
-                activeList.add(processIds[current]);
-                System.out.println("Process " + processIds[current] + " received election message, added its ID to list: " + activeList);
-            } else {
-                System.out.println("Process " + processIds[current] + " is down. Skipping...");
-            }
-            current = (current + 1) % n;
-        }
-
-        System.out.println("Election message returned to initiator (Process " + processIds[initiator] + ")");
-        System.out.println("Final Active List: " + activeList);
-
-        // Determine maximum ID
-        int newCoordinatorId = activeList.stream().max(Integer::compare).orElse(-1);
-        System.out.println("\n>>> New Coordinator is Process ID: " + newCoordinatorId + " <<<");
-
-        // Circulate coordinator notification message
-        System.out.println("\nCirculating Coordinator Message around the ring...");
-        current = (initiator + 1) % n;
-        while (current != initiator) {
-            if (isAlive[current]) {
-                System.out.println("Process " + processIds[current] + " notified: Coordinator is " + newCoordinatorId);
-            }
-            current = (current + 1) % n;
-        }
-    }
-
-    private static int getMaxAliveIndex() {
-        int maxId = -1;
-        int maxIndex = -1;
-        for (int i = 0; i < n; i++) {
-            if (isAlive[i] && processIds[i] > maxId) {
-                maxId = processIds[i];
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
     }
 }

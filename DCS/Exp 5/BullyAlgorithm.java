@@ -1,86 +1,80 @@
 import java.util.Scanner;
 
 public class BullyAlgorithm {
+
     static int n;
-    static int[] processIds;
-    static boolean[] isAlive;
+    static boolean[] active;
+
+    static void election(int initiator) {
+
+        System.out.println("\nProcess P" + initiator
+                + " starts an election.");
+
+        boolean higherProcessResponded = false;
+
+        // Send election messages to higher processes
+        for (int i = initiator + 1; i <= n; i++) {
+
+            if (active[i]) {
+
+                System.out.println("Election message sent to P" + i);
+
+                System.out.println("P" + i
+                        + " responds to P" + initiator);
+
+                higherProcessResponded = true;
+            }
+        }
+
+        if (!higherProcessResponded) {
+
+            System.out.println("\nP" + initiator
+                    + " becomes the new Coordinator.");
+
+            return;
+        }
+
+        // Higher process starts its own election
+        for (int i = initiator + 1; i <= n; i++) {
+
+            if (active[i]) {
+                election(i);
+                return;
+            }
+        }
+    }
 
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter total number of processes: ");
+        System.out.print("Enter number of processes: ");
         n = sc.nextInt();
 
-        processIds = new int[n];
-        isAlive = new boolean[n];
+        active = new boolean[n + 1];
 
-        for (int i = 0; i < n; i++) {
-            System.out.print("Enter Process ID for index " + i + ": ");
-            processIds[i] = sc.nextInt();
-            isAlive[i] = true; // All processes alive initially
+        // Initially all processes are active
+        for (int i = 1; i <= n; i++) {
+            active[i] = true;
         }
 
-        // Initially, the highest PID process is the coordinator
-        int currentCoordinatorIndex = getMaxAliveIndex();
-        System.out.println("\nInitial Coordinator is Process with ID: " + processIds[currentCoordinatorIndex]);
+        System.out.println("Enter failed process ID (0 for none): ");
+        int failed = sc.nextInt();
 
-        // Simulate failure of the current coordinator
-        System.out.println("Process " + processIds[currentCoordinatorIndex] + " has crashed.");
-        isAlive[currentCoordinatorIndex] = false;
-
-        System.out.print("\nEnter the index of the process that initiates the election (0 to " + (n - 1) + "): ");
-        int initiatorIndex = sc.nextInt();
-
-        runBullyElection(initiatorIndex);
-        sc.close();
-    }
-
-    private static void runBullyElection(int initiatorIndex) {
-        System.out.println("\n--- Starting Bully Election ---");
-        System.out.println("Process " + processIds[initiatorIndex] + " detected coordinator failure and initiated an election.");
-
-        boolean higherNodeResponded = false;
-
-        // Send election messages to all higher ID processes
-        for (int i = 0; i < n; i++) {
-            if (processIds[i] > processIds[initiatorIndex]) {
-                System.out.println("Election message sent from " + processIds[initiatorIndex] + " to " + processIds[i]);
-                if (isAlive[i]) {
-                    System.out.println("Process " + processIds[i] + " sent OK message back to " + processIds[initiatorIndex]);
-                    higherNodeResponded = true;
-                }
-            }
+        if (failed >= 1 && failed <= n) {
+            active[failed] = false;
+            System.out.println("Process P" + failed + " has failed.");
         }
 
-        if (higherNodeResponded) {
-            // Find the highest surviving process to declare victory
-            int newCoordinatorIndex = getMaxAliveIndex();
-            System.out.println("\nHigher process took over. Electing highest alive process...");
-            announceCoordinator(newCoordinatorIndex);
+        System.out.print("Enter process ID starting election: ");
+        int initiator = sc.nextInt();
+
+        if (initiator < 1 || initiator > n || !active[initiator]) {
+            System.out.println("Invalid or inactive initiator.");
         } else {
-            // No higher process responded; initiator wins
-            announceCoordinator(initiatorIndex);
+            election(initiator);
         }
-    }
 
-    private static int getMaxAliveIndex() {
-        int maxId = -1;
-        int maxIndex = -1;
-        for (int i = 0; i < n; i++) {
-            if (isAlive[i] && processIds[i] > maxId) {
-                maxId = processIds[i];
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
-    }
-
-    private static void announceCoordinator(int coordIndex) {
-        System.out.println("\n>>> New Coordinator is Process " + processIds[coordIndex] + " <<<");
-        for (int i = 0; i < n; i++) {
-            if (isAlive[i] && i != coordIndex) {
-                System.out.println("Coordinator announcement sent to Process " + processIds[i]);
-            }
-        }
+        sc.close();
     }
 }

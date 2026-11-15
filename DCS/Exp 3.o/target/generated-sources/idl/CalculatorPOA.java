@@ -1,0 +1,57 @@
+/**
+ * Generated from IDL interface "Calculator".
+ *
+ * @author JacORB IDL compiler V 3.9
+ * @version generated at 15 Nov 2026, 1:47:01 pm
+ */
+
+public abstract class CalculatorPOA
+	extends org.omg.PortableServer.Servant
+	implements org.omg.CORBA.portable.InvokeHandler, CalculatorOperations
+{
+	static private final java.util.HashMap<String,Integer> m_opsHash = new java.util.HashMap<String,Integer>();
+	static
+	{
+		m_opsHash.put ( "add", Integer.valueOf(0));
+	}
+	private String[] ids = {"IDL:Calculator:1.0"};
+	public Calculator _this()
+	{
+		org.omg.CORBA.Object __o = _this_object() ;
+		Calculator __r = CalculatorHelper.narrow(__o);
+		return __r;
+	}
+	public Calculator _this(org.omg.CORBA.ORB orb)
+	{
+		org.omg.CORBA.Object __o = _this_object(orb) ;
+		Calculator __r = CalculatorHelper.narrow(__o);
+		return __r;
+	}
+	public org.omg.CORBA.portable.OutputStream _invoke(String method, org.omg.CORBA.portable.InputStream _input, org.omg.CORBA.portable.ResponseHandler handler)
+		throws org.omg.CORBA.SystemException
+	{
+		org.omg.CORBA.portable.OutputStream _out = null;
+		// do something
+		// quick lookup of operation
+		java.lang.Integer opsIndex = (java.lang.Integer)m_opsHash.get ( method );
+		if ( null == opsIndex )
+			throw new org.omg.CORBA.BAD_OPERATION(method + " not found");
+		switch ( opsIndex.intValue() )
+		{
+			case 0: // add
+			{
+				int _arg0=_input.read_long();
+				int _arg1=_input.read_long();
+				_out = handler.createReply();
+				_out.write_long(add(_arg0,_arg1));
+				break;
+			}
+		}
+		return _out;
+	}
+
+	public String[] _all_interfaces(org.omg.PortableServer.POA poa, byte[] obj_id)
+	{
+		return ids;
+	}
+}

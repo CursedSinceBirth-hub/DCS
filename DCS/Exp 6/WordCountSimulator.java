@@ -1,4 +1,9 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 public class WordCountSimulator {
 
@@ -49,7 +54,7 @@ public class WordCountSimulator {
     public static void main(String[] args) {
         // Sample collection of documents / lines
         List<String> documents = Arrays.asList(
-                "Distributed computing systems enable concurrent computation.",
+                "Distributed computing systems enable is concurrent computation.",
                 "MapReduce simplifies big data processing.",
                 "Word count is the standard hello world of distributed MapReduce."
         );
